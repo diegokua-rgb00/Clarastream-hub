@@ -1,2 +1,2 @@
-# Clarastream-hub
+# clara_hub
 This code aims to be a Swiss knife for your transmission. 
