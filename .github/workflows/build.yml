@@ -27,7 +27,7 @@ jobs:
         run: flutter pub get
 
       - name: Generar estructura de Android faltante
-        run: flutter create . --platforms=android --org com.clara.streamer
+        run: flutter create . --platforms=android --project-name=clara_hub --org com.clara.streamer
 
       - name: Compilar APK de liberacion (Release)
         run: flutter build apk --release --no-pub
