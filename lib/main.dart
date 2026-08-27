@@ -1,155 +1,78 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const StreamerHubUnificadoApp());
+  runApp(const ClaraHubApp());
 }
 
-class StreamerHubUnificadoApp extends StatelessWidget {
-  const StreamerHubUnificadoApp({super.key});
+class ClaraHubApp extends StatelessWidget {
+  const ClaraHubApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const Color bgDark = Color(0xFF0F0E17);
-    const Color cardColor = Color(0xFF1B1A29);
-    const Color accentColor = Color(0xFFFF8906);
-
+    const primaryColor = Color(0xFF6200EE);
+    const backgroundColor = Color(0xFF121212);
+    
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Streamer Hub Pro',
+      title: 'Clara Hub - Motor Propio',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: bgDark,
-        cardColor: cardColor,
+        primarySwatch: Colors.deepPurple,
+        scaffoldBackgroundColor: backgroundColor,
         colorScheme: const ColorScheme.dark(
-          primary: accentColor,
-          secondary: Color(0xFFE53170),
+          primary: primaryColor,
+          surface: Color(0xFF1E1E1E),
         ),
       ),
-      home: const PantallaPrincipalUnificada(),
+      home: const MainControlScreen(),
     );
   }
 }
 
-class PantallaPrincipalUnificada extends StatefulWidget {
-  const PantallaPrincipalUnificada({super.key});
+class MainControlScreen extends StatefulWidget {
+  const MainControlScreen({super.key});
 
   @override
-  State<PantallaPrincipalUnificada> createState() => _PantallaPrincipalUnificadaState();
+  State<MainControlScreen> createState() => _MainControlScreenState();
 }
 
-class _PantallaPrincipalUnificadaState extends State<PantallaPrincipalUnificada> {
-  final List<String> _mensajesChat = [
-    "[Sistema]: Bienvenido al Hub de Consola - Listo para operar.",
+class _MainControlScreenState extends State<MainControlScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = [
+    const TimersScreen(),
+    const FiltersScreen(),
+    const CommandsScreen(),
   ];
-
-  final TextEditingController _mensajeController = TextEditingController();
-
-  void _enviarMensajeAlChat(String texto) {
-    if (texto.trim().isEmpty) return;
-    setState(() {
-      _mensajesChat.add("[Tú (Consola)]: $texto");
-    });
-    _mensajeController.clear();
-  }
-
-  void _dispararAccionBot(String nombreComando, String efectoChistoso) {
-    setState(() {
-      _mensajesChat.add("[Bot Hub]: 🤖 $efectoChistoso");
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Twitch Hub - Consola'),
-        backgroundColor: const Color(0xFF1B1A29),
+        title: const Text('Clara Hub - Control Nativo'),
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            color: const Color(0xFF161522),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _BotonBotAccion(
-                    titulo: '¡Asaltar Stream!',
-                    icono: Icons.local_police,
-                    color: Colors.amber,
-                    onTap: () => _dispararAccionBot('Asalto', '¡Atención chat! Nos cayeron los fideos armados, ¡a resguardar el loot! 🚨'),
-                  ),
-                  const SizedBox(width: 8),
-                  _BotonBotAccion(
-                    titulo: 'Púteme, Bot',
-                    icono: Icons.bolt,
-                    color: Colors.redAccent,
-                    onTap: () => _dispararAccionBot('Puteada', 'El bot mira al streamer y grita: ¡Andá a laburar, vago de cuarta! 🤬'),
-                  ),
-                  const SizedBox(width: 8),
-                  _BotonBotAccion(
-                    titulo: 'Masaje Virtual',
-                    icono: Icons.spa,
-                    color: Colors.greenAccent,
-                    onTap: () => _dispararAccionBot('Masaje', 'El bot activa contracturas. Masaje cervical en proceso... Ahh, alivio puro. 💆‍♂️'),
-                  ),
-                ],
-              ),
-            ),
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        backgroundColor: const Color(0xFF1E1E1E),
+        selectedItemColor: Colors.purpleAccent,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.timer),
+            label: 'Timers y Saludos',
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(12.0),
-              itemCount: _mensajesChat.length,
-              itemBuilder: (context, index) {
-                final mensaje = _mensajesChat[index];
-                final esAlerta = mensaje.contains("[Sistema]") || mensaje.contains("[Bot Hub]");
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4.0),
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: esAlerta ? Colors.deepOrange.withOpacity(0.15) : const Color(0xFF1B1A29),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: esAlerta ? Colors.deepOrangeAccent : Colors.white10,
-                    ),
-                  ),
-                  child: Text(
-                    mensaje,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: esAlerta ? Colors.orangeAccent : Colors.white,
-                      fontWeight: esAlerta ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                );
-              },
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.security),
+            label: 'Filtros y Spam',
           ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            color: const Color(0xFF1B1A29),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _mensajeController,
-                    decoration: const InputDecoration(
-                      hintText: 'Responder al chat desde la consola...',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                    onSubmitted: _enviarMensajeAlChat,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Color(0xFFFF8906)),
-                  onPressed: () => _enviarMensajeAlChat(_mensajeController.text),
-                ),
-              ],
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.code),
+            label: 'Comandos',
           ),
         ],
       ),
@@ -157,30 +80,204 @@ class _PantallaPrincipalUnificadaState extends State<PantallaPrincipalUnificada>
   }
 }
 
-class _BotonBotAccion extends StatelessWidget {
-  final String titulo;
-  final IconData icono;
-  final Color color;
-  final VoidCallback onTap;
+class TimersScreen extends StatefulWidget {
+  const TimersScreen({super.key});
 
-  const _BotonBotAccion({
-    required this.titulo,
-    required this.icono,
-    required this.color,
-    required this.onTap,
-  });
+  @override
+  State<TimersScreen> createState() => _TimersScreenState();
+}
+
+class _TimersScreenState extends State<TimersScreen> {
+  bool saludoActivo = false;
+  String frecuencia = '20 minutos';
+  final TextEditingController _mensajeController = TextEditingController(
+    text: '¡Bienvenidos al stream! No se olviden de dejar su follow y compartir.',
+  );
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF222131),
-        foregroundColor: Colors.white,
-        side: BorderSide(color: color, width: 1),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          const Text('Automatización de Mensajes y Timers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          const Text('Configura saludos automáticos recurrentes directo en el chat sin depender de plataformas externas.', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 20),
+          SwitchListTile(
+            title: const Text('Activar Saludo / Mensaje Automático'),
+            subtitle: Text('Envía el mensaje cada $frecuencia'),
+            value: saludoActivo,
+            onChanged: (val) {
+              setState(() {
+                saludoActivo = val;
+              });
+            },
+          ),
+          const Divider(),
+          const Text('Frecuencia del Timer:', style: TextStyle(fontWeight: FontWeight.bold)),
+          DropdownButton<String>(
+            value: frecuencia,
+            isExpanded: true,
+            dropdownColor: const Color(0xFF1E1E1E),
+            items: ['5 minutos', '10 minutos', '20 minutos', '30 minutos'].map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              setState(() {
+                frecuencia = newValue!;
+              });
+            },
+          ),
+          const SizedBox(height: 20),
+          const Text('Texto del Mensaje:', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _mensajeController,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Color(0xFF1E1E1E),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+            icon: const Icon(Icons.save),
+            label: const Text('Guardar y Aplicar Timer'),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Timer de chat configurado con éxito en Clara Hub.')),
+              );
+            },
+          ),
+        ],
       ),
-      onPressed: onTap,
-      icon: Icon(icono, color: color, size: 18),
-      label: Text(titulo, style: const TextStyle(fontSize: 12)),
+    );
+  }
+}
+
+class FiltersScreen extends StatefulWidget {
+  const FiltersScreen({super.key});
+
+  @override
+  State<FiltersScreen> createState() => _FiltersScreenState();
+}
+
+class _FiltersScreenState extends State<FiltersScreen> {
+  bool bloquearLinks = true;
+  bool bloquearSimbolos = true;
+  final TextEditingController _palabrasController = TextEditingController(
+    text: 'palabra1, insulto2, spam3',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          const Text('Filtros de Moderación y Seguridad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          const Text('Control total de bloqueo de enlaces y palabras prohibidas de forma nativa.', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 20),
+          SwitchListTile(
+            title: const Text('Bloquear Enlaces (Anti-Spam)'),
+            subtitle: const Text('Elimina automáticamente links no autorizados'),
+            value: bloquearLinks,
+            onChanged: (val) {
+              setState(() {
+                bloquearLinks = val;
+              });
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Filtro de Símbolos Excesivos'),
+            subtitle: const Text('Evita abuso de mayúsculas y caracteres repetidos'),
+            value: bloquearSimbolos,
+            onChanged: (val) {
+              setState(() {
+                bloquearSimbolos = val;
+              });
+            },
+          ),
+          const Divider(),
+          const Text('Lista Negra de Palabras (separadas por coma):', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _palabrasController,
+            maxLines: 2,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Color(0xFF1E1E1E),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+            icon: const Icon(Icons.security),
+            label: const Text('Actualizar Reglas de Moderación'),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Filtros de chat actualizados correctamente.')),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CommandsScreen extends StatelessWidget {
+  const CommandsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Gestión de Comandos del Bot', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          const Text('Administra tus comandos personalizados (!discord, !redes, !redesocial) con control total.', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView(
+              children: const [
+                ListTile(
+                  leading: Icon(Icons.bolt, color: Colors.amber),
+                  title: Text('!discord'),
+                  subtitle: Text('Muestra el enlace de invitación al servidor.'),
+                  trailing: Icon(Icons.check_circle, color: Colors.green),
+                ),
+                ListTile(
+                  leading: Icon(Icons.bolt, color: Colors.amber),
+                  title: Text('!redes'),
+                  subtitle: Text('Comparte las redes sociales oficiales.'),
+                  trailing: Icon(Icons.check_circle, color: Colors.green),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+            icon: const Icon(Icons.add),
+            label: const Text('Crear Nuevo Comando'),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Función de creación de comandos lista para integrar.')),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
